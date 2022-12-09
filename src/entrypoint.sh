@@ -21,7 +21,6 @@ export FLASK_APP=app.start:app
 echo "Initializing DB..."
 flask db upgrade
 flask create-dummy-users
-
 status=$?
 if [ $status -eq 0 ]; then
   echo "Starting Gunicorn..."

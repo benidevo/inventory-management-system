@@ -1,4 +1,4 @@
-class APPError(Exception):
+class AppError(Exception):
     def __init__(self, code, message="Internal Server Error"):
         self.code = code
         self.message = message

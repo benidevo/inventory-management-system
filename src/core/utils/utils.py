@@ -33,3 +33,8 @@ def cast_str(value):
         return str(value) if value is not None else None
     except ValueError:
         return None
+
+
+# write a function to replace all spaces in a string with -
+def replace_space_with_dash(string):
+    return string.replace(" ", "-")

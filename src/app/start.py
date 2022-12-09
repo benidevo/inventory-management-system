@@ -10,9 +10,10 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.wrappers import Response
 
 import core.settings as config
+from app.products.routes import init_product_routes
 from app.users.routes import init_auth_routes
 from core.commands import create_dummy_users_command
-from core.error_handlers import APPError
+from core.error_handlers import AppError
 from core.resources.database import db
 
 
@@ -24,6 +25,7 @@ def build_db(app):
 def routes(app):
     api = Api(app)
     init_auth_routes(api)
+    init_product_routes(api)
 
 
 def build_application():
@@ -57,7 +59,7 @@ def build_application():
 app = build_application()
 
 # =============================================================================
-@app.errorhandler(APPError)
+@app.errorhandler(AppError)
 def handle_exception(error):
     payload = {"success": error.success, "data": error.data}
     if getattr(error, "message", None):
