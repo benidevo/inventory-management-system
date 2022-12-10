@@ -1,7 +1,6 @@
 import logging
 
-from flask import current_app
-
+import core.settings as config
 from app.users.models import User
 from core.error_handlers import AppError
 from core.resources.jwt import JWTClient
@@ -24,5 +23,4 @@ class SessionTokenService:
 
     @property
     def jwt(self):
-        config = current_app.config
         return JWTClient(config)

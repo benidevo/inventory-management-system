@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.wrappers import Response
 
 import core.settings as config
+from app.orders.routes import init_cart_routes
 from app.products.routes import init_product_routes
 from app.users.routes import init_auth_routes
 from core.commands import create_dummy_users_command
@@ -26,6 +27,7 @@ def routes(app):
     api = Api(app)
     init_auth_routes(api)
     init_product_routes(api)
+    init_cart_routes(api)
 
 
 def build_application():

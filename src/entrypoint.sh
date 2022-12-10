@@ -19,6 +19,8 @@ done
 
 export FLASK_APP=app.start:app
 echo "Initializing DB..."
+flask db init
+flask db migrate
 flask db upgrade
 flask create-dummy-users
 status=$?
