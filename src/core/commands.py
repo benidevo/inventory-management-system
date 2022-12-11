@@ -26,18 +26,6 @@ def create_dummy_users_command():
         },
     ]
 
-    admin = {
-        "firstname": "Admin",
-        "lastname": "User",
-        "email": "adminuser@example.com",
-        "password": "password",
-    }
-
-    # create admin user
-    admin_user = User(**admin)
-    admin_user.save()
-    admin_user.set_role("ADMIN")
-
     # create dummy users
     for user in users:
         reg_user = User(**user)

@@ -9,7 +9,6 @@ class User(db.Model):
     lastname = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.Enum("ADMIN", "USER", name="user_roles"), default="USER")
     cart = db.relationship("Cart", backref="user", lazy=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
@@ -34,10 +33,6 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
-
-    def set_role(self, role):
-        self.role = role
-        self.save()
 
     def save(self):
         db.session.add(self)

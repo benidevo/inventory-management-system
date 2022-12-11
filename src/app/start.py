@@ -18,9 +18,51 @@ from core.error_handlers import AppError
 from core.resources.database import db
 
 
-def build_db(app):
-    db.init_app(app)
-    return db
+class App:
+    def __init__(self, db=db):
+        self.app = Flask(__name__)
+        self.logger = logging.getLogger("gunicorn.error")
+        self.db = db
+
+    def load_config(self):
+        # load flask config from settings
+        for k in dir(config):
+            v = getattr(config, k)
+            if not k.startswith("_") and k.upper() == k and not callable(v):
+                self.app.config[k] = v
+
+    def build_app(self):
+        self.load_config()
+        # set logging based on unicorn level
+        self.app.logger.handlers = self.logger.handlers
+        if __name__ != "main":
+            self.app.logger.setLevel(self.logger.level)
+        else:
+            self.app.logger.setLevel(logging.DEBUG)
+        self.app.logger.info(
+            "Logger Configured w/level {}".format(self.app.logger.level)
+        )
+
+        self.app.db = self.build_db()
+        CORS(self.app)
+        JWTManager(self.app)
+        Migrate(self.app, self.app.db)
+        self.set_routes()
+
+        return self.app
+
+    def build_db(self):
+        self.db.init_app(self.app)
+        return self.db
+
+    def set_routes(self):
+        api = Api(self.app)
+        init_auth_routes(api)
+        init_product_routes(api)
+        init_cart_routes(api)
+
+    def get_app(self):
+        return self.app
 
 
 def routes(app):
@@ -30,35 +72,9 @@ def routes(app):
     init_cart_routes(api)
 
 
-def build_application():
-    app = Flask(__name__)
-    # load flask config from settings
-    for k in dir(config):
-        v = getattr(config, k)
-        if not k.startswith("_") and k.upper() == k and not callable(v):
-            app.config[k] = v
-
-    # set logging based on unicorn level
-    gunicorn_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers = gunicorn_logger.handlers
-    if __name__ != "main":
-        app.logger.setLevel(gunicorn_logger.level)
-    else:
-        app.logger.setLevel(logging.DEBUG)
-    app.logger.info("Logger Configured w/level {}".format(app.logger.level))
-
-    app.db = build_db(app)
-    CORS(app)
-    JWTManager(app)
-
-    Migrate(app, app.db)
-    routes(app)
-    return app
-
-
 # =============================================================================
 
-app = build_application()
+app = App().build_app()
 
 # =============================================================================
 @app.errorhandler(AppError)
