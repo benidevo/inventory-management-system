@@ -1,33 +1,97 @@
-from app.orders.models import LineItem as CartItem
+from app.orders.models import CartItem
+from app.orders.services.cart import CartService
+from app.products.services.product import ProductService
 from core.error_handlers import AppError
+from core.utils import BaseService
 
 
-class CartItemService:
+class CartItemService(BaseService):
     model = CartItem
+    product_service = ProductService()
+    cart_service = CartService()
 
     def get_all(self, cart_id):
-        carts = self.model.query.filter_by(cart_id=cart_id).all()
-        return carts
+        return self.model.query.filter_by(cart_id=cart_id).all()
 
     def create(self, cart_id, cart_item_data):
+        product_id = cart_item_data.get("product_id")
+        product_quantity = cart_item_data.get("quantity")
+
+        product = self.check_stock(product_id, product_quantity, cart_id)
+
         cart_item_data.update({"cart_id": cart_id})
         cart_item = self.model(**cart_item_data)
-        cart_item.save()
+        try:
+            cart_item.save()
+        except Exception as e:
+            self.logger.error("CartItemService.create(): %s", e)
+            raise AppError(500)
 
-    def update(self, cart_item_id, cart_item_data):
-        cart_item = self.get(cart_item_id)
-        print("cart_item_data", cart_item_data)
-        cart_item.update(cart_item_data)
+        product.quantity -= product_quantity
+
+        try:
+            product.save()
+        except Exception as e:
+            self.logger.error("CartItemService.create(): %s", e)
+            raise AppError(500)
+
+    def update(self, cart_id, cart_item_id, cart_item_data):
+        cart_item = self.get(cart_id, cart_item_id)
+        new_quantity = cart_item_data.get("quantity")
+        product_id = cart_item_data.pop("product_id")
+
+        qty = 0
+        if cart_item.quantity > new_quantity:
+            qty = cart_item.quantity - new_quantity
+            # product.quantity += qty
+            new_quantity = cart_item.quantity - qty
+        else:
+            qty = new_quantity - cart_item.quantity
+            # product.quantity -= qty
+            new_quantity = cart_item.quantity + qty
+
+        print("new_quantity", new_quantity)
+
+        product = self.check_stock(product_id, new_quantity, cart_id)
+        jj = product.quantity - qty
+        ii = product.quantity + qty
+
+        product.quantity = ii if cart_item.quantity > new_quantity else jj
+        try:
+            product.save()
+            cart_item.update(cart_item_data)
+        except Exception as e:
+            self.logger.error("CartItemService.update(): %s", e)
+            raise AppError(500)
 
         return cart_item
 
-    def get(self, cart_item_id):
-        cart_item = self.model.query.filter_by(id=cart_item_id).first()
+    def get(self, cart_id, cart_item_id):
+        cart_item = self.model.query.filter_by(id=cart_item_id, cart_id=cart_id).first()
         if not cart_item:
             raise AppError(404, "Cart item not found")
 
         return cart_item
 
-    def delete(self, cart_item_id):
-        cart_item = self.get(cart_item_id)
-        cart_item.delete()
+    def delete(self, cart_id, cart_item_id):
+        cart_item = self.get(cart_id, cart_item_id)
+        product = self.product_service.get(cart_item.product_id)
+        product.quantity += cart_item.quantity
+
+        try:
+            product.save()
+            cart_item.delete()
+        except Exception as e:
+            self.logger.error("CartItemService.delete(): %s", e)
+            raise AppError(500)
+
+    def check_stock(self, product_id, product_quantity, cart_id):
+        product = self.product_service.get(product_id)
+        if not product.in_stock or product.quantity < product_quantity:
+            raise AppError(400, "Product out of stock")
+
+        cart = self.cart_service.get(cart_id)
+        if cart.state == "COMPLETED":
+            raise AppError(400, "Cannot add item to completed cart")
+
+        return product

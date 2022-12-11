@@ -26,9 +26,11 @@ class CartController(Resource):
     def post(self):
         jwt_identity = get_jwt_identity()
         user_id = self.jwt_client.get_user_id(jwt_identity)
-        self.cart_service.create(user_id)
+        cart_id = self.cart_service.create(user_id)
 
-        return Response(success=True, message="Cart created", status_code=201)
+        return Response(
+            success=True, message="Cart created", data=cart_id, status_code=201
+        )
 
 
 class CartDetailController(Resource):

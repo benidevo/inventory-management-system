@@ -1,40 +1,57 @@
-from app.products.models import Category, Label, Product
+from app.products.models import Product, ProductCategory, ProductLabel
 from core.error_handlers import AppError
-from core.utils import replace_space_with_dash
+from core.utils.utils import BaseService
 
 
-class ProductService:
+class ProductService(BaseService):
     model = Product
 
     def create(self, data):
-        prod_labels = data.pop("labels", None)
-        prod_category = data.pop("category", None)
-        if prod_category:
-            category = Category.query.filter_by(name=prod_category.upper()).first()
-            if not category:
-                category = Category(name=prod_category)
+        prod_labels = data.pop("labels")
+        prod_category = data.pop("category").get("name")
+
+        category = ProductCategory.query.filter_by(name=prod_category.upper()).first()
+        if not category:
+            category = ProductCategory(name=prod_category)
+            try:
                 category.save()
-            data.update({"category_id": category.id})
+            except Exception as e:
+                self.logger.error("ProductService.create(): %s", str(e))
+                raise AppError(500)
 
-        product = Product(**data)
-        product.save()
+        data.update({"category_id": category.id})
 
-        if prod_labels:
-            labels_list = []
-            for prod_label in prod_labels:
-                formatted_label = replace_space_with_dash(prod_label)
-                label = Label.query.filter_by(name=formatted_label).first()
-                if not label:
-                    label = Label(name=formatted_label).save()
-                labels_list.append(label)
-            product.labels = labels_list
+        product = self.model(**data)
+        try:
             product.save()
+        except Exception as e:
+            self.logger.error("ProductService.create(): %s", str(e))
+            raise AppError(500)
+
+        for prod_label in prod_labels:
+            label = ProductLabel(**prod_label, product_id=product.id)
+            try:
+                label.save()
+            except Exception as e:
+                self.logger.error("ProductService.create(): %s", str(e))
+                raise AppError(500)
 
     def get_all(self):
-        return Product.query.all()
+        try:
+            products = self.model.query.all()
+        except Exception as e:
+            self.logger.error("ProductService.get_all(): %s", str(e))
+            raise AppError(500)
+
+        return products
 
     def get(self, product_id):
-        product = Product.query.filter_by(id=product_id).first()
+        try:
+            product = Product.query.filter_by(id=product_id).first()
+        except Exception as e:
+            self.logger.error("ProductService.get(): %s", str(e))
+            raise AppError(500)
+
         if not product:
             raise AppError(404, "Product not found")
 
@@ -45,24 +62,29 @@ class ProductService:
 
         prod_category = data.pop("category", None)
         if prod_category:
-            category = Category.query.filter_by(name=prod_category.upper()).first()
+            prod_category = prod_category.get("name")
+            category = ProductCategory.query.filter_by(
+                name=prod_category.upper()
+            ).first()
             if not category:
-                category = Category(name=prod_category)
-                category.save()
-            data.update({"category_id": category.id})
-        product.update(data)
+                category = ProductCategory(name=prod_category)
+                try:
+                    category.save()
+                except Exception as e:
+                    self.logger.error("ProductService.update(): %s", str(e))
+                    raise AppError(500)
 
-        prod_labels = data.pop("labels", None)
-        if prod_labels:
-            labels_list = []
-            for prod_label in prod_labels:
-                formatted_label = replace_space_with_dash(prod_label)
-                label = Label.query.filter_by(name=formatted_label).first()
-                if not label:
-                    label = Label(name=formatted_label).save()
-                labels_list.append(label)
-            product.labels.extend(labels_list)
+            data.update({"category_id": category.id})
+        try:
+            product.update(data)
+        except Exception as e:
+            self.logger.error("ProductService.update(): %s", str(e))
+            raise AppError(500)
 
     def delete(self, product_id):
         product = self.get(product_id)
-        product.delete()
+        try:
+            product.delete()
+        except Exception as e:
+            self.logger.error("ProductService.delete(): %s", str(e))
+            raise AppError(500)

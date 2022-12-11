@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import fields
 
 from core.utils.utils import CamelCaseSchema
 
@@ -10,4 +10,3 @@ class LoginSchema(CamelCaseSchema):
 
 class LoginResponseSchema(CamelCaseSchema):
     access_token = fields.String(required=True)
-    refresh_token = fields.String(required=True)

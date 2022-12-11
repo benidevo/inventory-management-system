@@ -14,13 +14,11 @@ fi
 wait for postgres
 echo "Waiting for postgres..."
 while ! nc -z db 5432; do
-  sleep 0.2
+  sleep 0.1
 done
 
 export FLASK_APP=app.start:app
 echo "Initializing DB..."
-flask db init
-flask db migrate
 flask db upgrade
 flask create-dummy-users
 status=$?

@@ -1,24 +1,16 @@
 from core.resources.database import db
 
-labels = db.Table(
-    "labels",
-    db.Column("label_id", db.Integer, db.ForeignKey("label.id"), primary_key=True),
-    db.Column("product_id", db.Integer, db.ForeignKey("product.id"), primary_key=True),
-)
-
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    cart_items = db.relationship("CartItem", backref="product", lazy=True)
     labels = db.relationship(
-        "Label",
-        secondary=labels,
-        lazy="subquery",
-        backref=db.backref("products", lazy=True),
+        "ProductLabel", backref="product", lazy=True, cascade="all, delete"
     )
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
+    category_id = db.Column(db.Integer, db.ForeignKey("product_category.id"))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
@@ -33,10 +25,11 @@ class Product(db.Model):
     def __repr__(self):
         return f"Product {self.name}"
 
+    @property
     def in_stock(self):
         return self.quantity > 0
 
-    def update(self, update_dictionary: dict):
+    def update(self, update_dictionary):
         for col_name in self.__table__.columns.keys():
             if col_name in update_dictionary:
                 setattr(self, col_name, update_dictionary[col_name])
@@ -52,19 +45,30 @@ class Product(db.Model):
         db.session.commit()
 
 
-class Label(db.Model):
+class ProductLabel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False, unique=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
+    name = db.Column(db.String(80), nullable=False)
+    value = db.Column(db.String(80), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
     )
 
-    def __init__(self, name):
+    def __init__(self, name, value, product_id):
         self.name = name
+        self.value = value
+        self.product_id = product_id
 
     def __repr__(self):
-        return f"Label {self.name}"
+        return f"ProductLabel {self.name}"
+
+    def update(self, update_dictionary):
+        for col_name in self.__table__.columns.keys():
+            if col_name in update_dictionary:
+                setattr(self, col_name, update_dictionary[col_name])
+
+        self.save()
 
     def save(self):
         db.session.add(self)
@@ -75,7 +79,7 @@ class Label(db.Model):
         db.session.commit()
 
 
-class Category(db.Model):
+class ProductCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
     products = db.relationship("Product", backref="category", lazy=True)

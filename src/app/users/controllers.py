@@ -7,6 +7,8 @@ from core.utils import Response
 
 
 class AuthController(Resource):
+    token_service = SessionTokenService()
+
     def post(self):
         request_schema = LoginSchema()
         data = request_schema.load(request.json)
@@ -18,7 +20,3 @@ class AuthController(Resource):
         return Response(
             success=True, message="Login Successful", data=token, status_code=200
         )
-
-    @property
-    def token_service(self):
-        return SessionTokenService()

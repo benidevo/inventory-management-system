@@ -1,12 +1,11 @@
+from core.error_handlers import AppError
 from core.resources.database import db
 
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    line_items = db.relationship("LineItem", backref="cart", lazy=True)
-    quantity = db.Column(db.Integer, nullable=False, default=0)
-    total_amount = db.Column(db.Integer, nullable=False, default=0)
+    cart_items = db.relationship("CartItem", backref="cart", lazy=True)
     state = db.Column(db.Enum("DRAFT", "COMPLETED", name="cart_state"), default="DRAFT")
     is_paid = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -20,15 +19,21 @@ class Cart(db.Model):
     def __repr__(self):
         return f"Cart {self.id}"
 
-    def get_total_amount(self):
-        self.total_amount = sum(
-            [line_item.get_total_amount() for line_item in self.line_items]
-        )
-        self.quantity = self.get_quantity()
-        return self
+    @property
+    def total_amount(self):
+        total = 0
+        for item in self.cart_items:
+            total += item.product.price * item.quantity
 
-    def get_quantity(self):
-        return sum([line_item.quantity for line_item in self.line_items])
+        return total
+
+    @property
+    def total_quantity(self):
+        total = 0
+        for item in self.cart_items:
+            total += item.quantity
+
+        return total
 
     def update(self, update_dictionary: dict):
         for col_name in self.__table__.columns.keys():
@@ -46,7 +51,7 @@ class Cart(db.Model):
         db.session.commit()
 
 
-class LineItem(db.Model):
+class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey("cart.id"))
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
@@ -62,10 +67,15 @@ class LineItem(db.Model):
         self.quantity = quantity
 
     def __repr__(self):
-        return f"LineItem {self.id}"
+        return f"CartItem {self.id}"
 
-    def get_total_amount(self):
-        return self.products.price * self.quantity
+    @property
+    def amount(self):
+        return self.product.price * self.quantity
+
+    @property
+    def product_name(self):
+        return self.product.name
 
     def update(self, update_dictionary: dict):
         for col_name in self.__table__.columns.keys():

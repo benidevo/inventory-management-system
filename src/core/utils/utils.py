@@ -2,6 +2,7 @@ import logging
 
 from dateutil.relativedelta import *
 from dateutil.rrule import *
+from flask import current_app
 from flask_restful import Resource
 from marshmallow import Schema
 
@@ -27,6 +28,9 @@ class CamelCaseSchema(Schema):
     def on_bind_field(self, field_name, field_obj):
         field_obj.data_key = to_camel_case(field_obj.data_key or field_name)
 
+    class Meta:
+        ordered = True
+
 
 def cast_str(value):
     try:
@@ -35,6 +39,7 @@ def cast_str(value):
         return None
 
 
-# write a function to replace all spaces in a string with -
-def replace_space_with_dash(string):
-    return string.replace(" ", "-")
+class BaseService:
+    @property
+    def logger(self):
+        return current_app.logger
