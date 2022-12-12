@@ -2,7 +2,9 @@
 
 [![Black Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-This is a simple inventory management system API built with Flask and Flask-RESTful. It is a simple API that allows users to create, delete, update and retrieve products. It also allows users to add products to cart and purchase products.
+This is a simple inventory management system API built with Flask and Flask-RESTful. It allows users to create, delete, update and retrieve products. It also allows users to add products to cart and purchase products.
+
+- [Link to API Documentation](https://documenter.getpostman.com/view/15138887/2s8YzUw1vw)
 
 ## Key Features
 
@@ -19,6 +21,7 @@ This is a simple inventory management system API built with Flask and Flask-REST
 - [PostgreSQL](https://www.postgresql.org/): Application relational databases for development, staging and production environments
 - [Adminer](https://www.adminer.org/): Database management tool
 - [Docker Engine and Docker Compose](https://www.docker.com/) : Containerization of the application and services orchestration
+- [AWS](https://aws.amazon.com/): Deployment of the application
 
 ## Testing
 
@@ -38,7 +41,7 @@ Two user accounts have been created for testing purposes. The details are as fol
   - Password: TestPassword (the value of POSTGRES_PASSWORD in the .env file)
   - Database: inventory (the value of POSTGRES_DB in the .env file)
 
-- The API documentation is available on `http://localhost:8000/v1/docs` on your browser.
+- The API documentation is available on `https://documenter.getpostman.com/view/15138887/2s8YzUw1vw` on your browser.
 
 ## How To Start App
 
@@ -60,7 +63,3 @@ Two user accounts have been created for testing purposes. The details are as fol
 - Run `make down` to stop the servers
 
 - Other commands can be found in the Makefile
-
-## Exploring The App
-
-Make sure that all the above servers are running before you start exploring the project.

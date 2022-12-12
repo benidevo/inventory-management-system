@@ -46,23 +46,21 @@ class CartItemService(BaseService):
         new_quantity = cart_item_data.get("quantity")
         product_id = cart_item_data.pop("product_id")
 
-        qty = 0
+        if cart_item.quantity == new_quantity:
+            return cart_item
+
         if cart_item.quantity > new_quantity:
             qty = cart_item.quantity - new_quantity
-            # product.quantity += qty
-            new_quantity = cart_item.quantity - qty
         else:
             qty = new_quantity - cart_item.quantity
-            # product.quantity -= qty
-            new_quantity = cart_item.quantity + qty
 
-        print("new_quantity", new_quantity)
+        product = self.check_stock(product_id, qty, cart_id)
+        decrease_qty = product.quantity - qty
+        increase_qty = product.quantity + qty
 
-        product = self.check_stock(product_id, new_quantity, cart_id)
-        jj = product.quantity - qty
-        ii = product.quantity + qty
-
-        product.quantity = ii if cart_item.quantity > new_quantity else jj
+        product.quantity = (
+            increase_qty if cart_item.quantity > new_quantity else decrease_qty
+        )
         try:
             product.save()
             cart_item.update(cart_item_data)

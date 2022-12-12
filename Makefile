@@ -13,9 +13,6 @@ down_volumes:
 show_logs:
 	docker-compose -f docker-compose.yml logs
 
-flake8:
-	docker-compose -f docker-compose.yml exec api flake8 .
-
 black-check:
 	docker-compose -f docker-compose.yml exec api black --check --exclude=migrations --exclude=/app/venv --exclude=/app/env --exclude=venv --exclude=env .
 

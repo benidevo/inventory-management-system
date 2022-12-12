@@ -15,5 +15,4 @@ class JWTClient:
         return tokens
 
     def get_user_id(self, jwt_identity):
-
         return jwt_identity.get("user_id")

@@ -60,6 +60,12 @@ class App:
         init_auth_routes(api)
         init_product_routes(api)
         init_cart_routes(api)
+        self.set_home_route()
+
+    def set_home_route(self):
+        @self.app.route("/")
+        def home():
+            return json.dumps({"status": True, "message": "Welcome to the API"})
 
     def get_app(self):
         return self.app

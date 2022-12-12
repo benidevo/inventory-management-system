@@ -16,13 +16,13 @@ def create_dummy_users_command():
             "firstname": "John",
             "lastname": "Doe",
             "email": "johndoe@example.com",
-            "password": "password",
+            "password": "TestPassword",
         },
         {
             "firstname": "Jane",
             "lastname": "Doe",
             "email": "janedoe@example.com",
-            "password": "password",
+            "password": "TestPassword",
         },
     ]
 

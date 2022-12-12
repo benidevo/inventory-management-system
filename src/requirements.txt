@@ -6,7 +6,6 @@ Flask-JWT-Extended==4.4.4
 flask-sqlalchemy==3.0.2
 flask-marshmallow==0.14.0
 
-flake8==4.0.1
 black==22.6.0
 isort==5.10.1
 
