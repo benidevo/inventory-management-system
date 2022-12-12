@@ -65,13 +65,6 @@ class App:
         return self.app
 
 
-def routes(app):
-    api = Api(app)
-    init_auth_routes(api)
-    init_product_routes(api)
-    init_cart_routes(api)
-
-
 # =============================================================================
 
 app = App().build_app()

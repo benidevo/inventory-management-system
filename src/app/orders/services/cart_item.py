@@ -17,6 +17,12 @@ class CartItemService(BaseService):
         product_id = cart_item_data.get("product_id")
         product_quantity = cart_item_data.get("quantity")
 
+        item_in_cart = self.model.query.filter_by(
+            cart_id=cart_id, product_id=product_id
+        ).first()
+        if item_in_cart:
+            raise AppError(400, "Item already in cart")
+
         product = self.check_stock(product_id, product_quantity, cart_id)
 
         cart_item_data.update({"cart_id": cart_id})

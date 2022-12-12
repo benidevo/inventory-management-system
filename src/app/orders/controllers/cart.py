@@ -14,7 +14,10 @@ class CartController(Resource):
 
     @jwt_required()
     def get(self):
-        carts = self.cart_service.get_all()
+        jwt_identity = get_jwt_identity()
+        user_id = self.jwt_client.get_user_id(jwt_identity)
+
+        carts = self.cart_service.get_all(user_id)
         cart_schema = CartSchema(many=True)
         carts = cart_schema.dump(carts)
 

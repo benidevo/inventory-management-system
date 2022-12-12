@@ -20,7 +20,6 @@ __pycache__/
 *.spec
 *.pyc
 
-
 # Flask stuff:
 instance/
 .webassets-cache

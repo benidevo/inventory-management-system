@@ -6,8 +6,8 @@ from core.utils.utils import BaseService
 class CartService(BaseService):
     model = Cart
 
-    def get_all(self):
-        return self.model.query.all()
+    def get_all(self, user_id):
+        return self.model.query.filter_by(user_id=user_id).all()
 
     def create(self, user_id):
         cart = self.model(user_id)
