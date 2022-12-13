@@ -47,7 +47,7 @@ Two user accounts have been created for testing purposes. The details are as fol
 
 - Clone the Repository
 - create a .env file with the variables in the .env.example file
-  - `cp .env.example .env`
+  - `cp env.example .env`
 
 - Run `make build`
 
