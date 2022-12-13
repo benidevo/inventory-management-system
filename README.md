@@ -5,6 +5,7 @@
 This is a simple inventory management system API built with Flask and Flask-RESTful. It allows users to create, delete, update and retrieve products. It also allows users to add products to cart and purchase products.
 
 - [Link to API Documentation](https://documenter.getpostman.com/view/15138887/2s8YzUw1vw)
+- [Link to API on AWS](http://ec2-18-116-112-227.us-east-2.compute.amazonaws.com)
 
 ## Key Features
 
@@ -38,7 +39,7 @@ Two user accounts have been created for testing purposes. The details are as fol
   - System: PostgreSQL
   - Server: db
   - Username: postgres (the value of POSTGRES_USER in the .env file)
-  - Password: TestPassword (the value of POSTGRES_PASSWORD in the .env file)
+  - Password: dbPassword (the value of POSTGRES_PASSWORD in the .env file)
   - Database: inventory (the value of POSTGRES_DB in the .env file)
 
 - The API documentation is available on `https://documenter.getpostman.com/view/15138887/2s8YzUw1vw` on your browser.
@@ -47,7 +48,7 @@ Two user accounts have been created for testing purposes. The details are as fol
 
 - Clone the Repository
 - create a .env file with the variables in the .env.example file
-  - `cp env.example .env`
+  - `cp env.sample .env`
 
 - Run `make build`
 
