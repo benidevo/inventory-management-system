@@ -1,12 +1,16 @@
 from app.products.models import ProductLabel
+from app.products.services.product import ProductService
 from core.error_handlers import AppError
 from core.utils.utils import BaseService
 
 
 class ProductLabelService(BaseService):
     model = ProductLabel
+    product_service = ProductService()
 
     def create(self, product_id, data):
+        self.product_service.get(product_id)
+
         label = self.model(**data, product_id=product_id)
         try:
             label.save()

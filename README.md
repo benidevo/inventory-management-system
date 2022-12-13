@@ -47,7 +47,7 @@ Two user accounts have been created for testing purposes. The details are as fol
 ## How To Start App
 
 - Clone the Repository
-- create a .env file with the variables in the .env.example file
+- create a .env file with the variables in the env.sample file
   - `cp env.sample .env`
 
 - Run `make build`
