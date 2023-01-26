@@ -5,7 +5,8 @@
 This is a simple inventory management system API built with Flask and Flask-RESTful. It allows users to create, delete, update and retrieve products. It also allows users to add products to cart and purchase products.
 
 - [Link to API Documentation](https://documenter.getpostman.com/view/15138887/2s8YzUw1vw)
-- [Link to API on AWS](http://ec2-18-116-112-227.us-east-2.compute.amazonaws.com)
+
+![Screenshot](api-doc.png?raw=true "API DOC")
 
 ## Key Features
 
@@ -22,7 +23,6 @@ This is a simple inventory management system API built with Flask and Flask-REST
 - [PostgreSQL](https://www.postgresql.org/): Application relational databases for development, staging and production environments
 - [Adminer](https://www.adminer.org/): Database management tool
 - [Docker Engine and Docker Compose](https://www.docker.com/) : Containerization of the application and services orchestration
-- [AWS](https://aws.amazon.com/): Deployment of the application
 
 ## Testing
 
@@ -58,8 +58,8 @@ Two user accounts have been created for testing purposes. The details are as fol
 - Run `make up`
 
   - Running the above command will Start up the following Servers:
-    - API Server --> http://localhost:8000
-    - Adminer Server --> http://localhost:8080
+    - API Server --> <http://localhost:8000>
+    - Adminer Server --> <http://localhost:8080>
 
 - Run `make down` to stop the servers
 
